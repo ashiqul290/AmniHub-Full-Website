@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -20,6 +21,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import styles from "./auth-pages.module.css";
+import { apiRequest } from "@/features/ecommerce/api";
 
 function AuthBrand() {
   return (
@@ -148,11 +150,37 @@ function PasswordField({
 }
 
 export function LoginPageContent() {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  function keepSubmissionLocal(event: FormEvent<HTMLFormElement>) {
+  async function submitLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setBusy(true);
+    setError("");
+    const form = new FormData(event.currentTarget);
+    try {
+      const result = await apiRequest<{ user: { role: string } }>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: form.get("email"),
+          password: form.get("password"),
+        }),
+      });
+      router.push(
+        result.user.role === "admin"
+          ? "/ecommerce/admin"
+          : result.user.role === "seller"
+            ? "/ecommerce/seller"
+            : "/ecommerce",
+      );
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to sign in.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -162,7 +190,7 @@ export function LoginPageContent() {
         <h1>Welcome Back!</h1>
         <p>Sign in to continue to OmniHub.</p>
       </div>
-      <form className={styles.form} onSubmit={keepSubmissionLocal}>
+      <form className={styles.form} onSubmit={submitLogin}>
         <div className={styles.field}>
           <label htmlFor="login-email">Email address</label>
           <div className={styles.inputWrap}>
@@ -191,14 +219,11 @@ export function LoginPageContent() {
             <input type="checkbox" name="remember" />
             <span>Remember me</span>
           </label>
-          <Link href="#forgot-password">Forgot password?</Link>
+          <Link href="/forgot-password">Forgot password?</Link>
         </div>
-        <button className={styles.submitButton} type="submit">
-          Sign In <ArrowRight size={17} />
-        </button>
-        <div className={styles.divider}><span>or continue with</span></div>
-        <button className={styles.googleButton} type="button">
-          <GoogleMark /> Continue with Google
+        {error && <p role="alert" className={styles.formError}>{error}</p>}
+        <button className={styles.submitButton} type="submit" disabled={busy}>
+          {busy ? "Signing in…" : "Sign In"} <ArrowRight size={17} />
         </button>
       </form>
       <p className={styles.switchPrompt}>
@@ -209,13 +234,41 @@ export function LoginPageContent() {
 }
 
 export function RegistrationPageContent() {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const [role, setRole] = useState<"customer" | "seller">("customer");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  function keepSubmissionLocal(event: FormEvent<HTMLFormElement>) {
+  async function submitRegistration(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError("");
+    if (password !== confirmPassword) {
+      setError("Your passwords do not match.");
+      return;
+    }
+    setBusy(true);
+    const form = new FormData(event.currentTarget);
+    try {
+      await apiRequest("/auth/register", {
+        method: "POST",
+        body: JSON.stringify({
+          name: form.get("name"),
+          email: form.get("email"),
+          phone: form.get("phone"),
+          password,
+          role,
+        }),
+      });
+      router.push(role === "seller" ? "/ecommerce/seller" : "/ecommerce");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to create your account.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -225,12 +278,22 @@ export function RegistrationPageContent() {
         <h1>Create Your Account</h1>
         <p>Join OmniHub and explore endless possibilities.</p>
       </div>
-      <form className={`${styles.form} ${styles.registerForm}`} onSubmit={keepSubmissionLocal}>
+      <form className={`${styles.form} ${styles.registerForm}`} onSubmit={submitRegistration}>
         <div className={styles.field}>
           <label htmlFor="register-name">Full name</label>
           <div className={styles.inputWrap}>
             <UserRound className={styles.inputIcon} size={17} aria-hidden="true" />
             <input id="register-name" name="name" autoComplete="name" placeholder="Your full name" required />
+          </div>
+        </div>
+        <div className={styles.field}>
+          <label htmlFor="register-role">Account type</label>
+          <div className={styles.inputWrap}>
+            <Building2 className={styles.inputIcon} size={17} aria-hidden="true" />
+            <select id="register-role" value={role} onChange={(event) => setRole(event.target.value === "seller" ? "seller" : "customer")}>
+              <option value="customer">Customer</option>
+              <option value="seller">Seller (approval required)</option>
+            </select>
           </div>
         </div>
         <div className={styles.field}>
@@ -276,12 +339,9 @@ export function RegistrationPageContent() {
           <input type="checkbox" name="terms" required />
           <span>I agree to the <Link href="#terms">Terms &amp; Conditions</Link></span>
         </label>
-        <button className={styles.submitButton} type="submit">
-          Create Account <ArrowRight size={17} />
-        </button>
-        <div className={styles.divider}><span>or sign up with</span></div>
-        <button className={styles.googleButton} type="button">
-          <GoogleMark /> Continue with Google
+        {error && <p role="alert" className={styles.formError}>{error}</p>}
+        <button className={styles.submitButton} type="submit" disabled={busy}>
+          {busy ? "Creating account…" : "Create Account"} <ArrowRight size={17} />
         </button>
       </form>
       <p className={styles.switchPrompt}>
@@ -291,8 +351,91 @@ export function RegistrationPageContent() {
   );
 }
 
-function GoogleMark() {
-  return <span className={styles.googleMark} aria-hidden="true">G</span>;
+export function ForgotPasswordPageContent() {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      const result = await apiRequest<{ message: string }>("/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+      setMessage(result.message);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "We could not request a reset link.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <AuthLayout variant="login">
+    <div className={styles.formHeading}><span className={styles.welcomeMark}><Sparkles size={17} /></span><h1>Reset your password</h1><p>We&apos;ll email a secure link if an account matches.</p></div>
+    <form className={styles.form} onSubmit={submit}>
+      <div className={styles.field}><label htmlFor="reset-email">Email address</label><div className={styles.inputWrap}><Mail className={styles.inputIcon} size={17} aria-hidden="true" /><input id="reset-email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" /></div></div>
+      {error && <p role="alert" className={styles.formError}>{error}</p>}
+      {message && <p role="status" className={styles.formSuccess}>{message}</p>}
+      <button className={styles.submitButton} type="submit" disabled={busy}>{busy ? "Sending…" : "Send reset link"} <ArrowRight size={17} /></button>
+    </form>
+    <p className={styles.switchPrompt}><Link href="/login">Back to sign in</Link></p>
+  </AuthLayout>;
+}
+
+export function ResetPasswordPageContent() {
+  const [email, setEmail] = useState("");
+  const [token, setToken] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setEmail(params.get("email") || "");
+      setToken(params.get("token") || "");
+    }
+  }, []);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+    if (password !== confirmPassword) {
+      setError("Your passwords do not match.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await apiRequest<{ message: string }>("/auth/reset-password", {
+        method: "POST",
+        body: JSON.stringify({ email, token, password }),
+      });
+      setMessage(result.message);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "We could not reset your password.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <AuthLayout variant="login">
+    <div className={styles.formHeading}><span className={styles.welcomeMark}><LockKeyhole size={17} /></span><h1>Choose a new password</h1><p>Use at least 10 characters, with a letter and a number.</p></div>
+    <form className={styles.form} onSubmit={submit}>
+      <div className={styles.field}><label htmlFor="reset-new-password">New password</label><input className={styles.simpleInput} id="reset-new-password" type="password" autoComplete="new-password" minLength={10} required value={password} onChange={(event) => setPassword(event.target.value)} /></div>
+      <div className={styles.field}><label htmlFor="reset-confirm-password">Confirm password</label><input className={styles.simpleInput} id="reset-confirm-password" type="password" autoComplete="new-password" minLength={10} required value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} /></div>
+      {error && <p role="alert" className={styles.formError}>{error}</p>}
+      {message && <p role="status" className={styles.formSuccess}>{message} <Link href="/login">Sign in</Link></p>}
+      <button className={styles.submitButton} type="submit" disabled={busy || !email || !token}>{busy ? "Updating…" : "Update password"} <ArrowRight size={17} /></button>
+    </form>
+  </AuthLayout>;
 }
 
 const profileDetails = [

@@ -143,8 +143,33 @@
   font-size: 13px;
 }
 
+.inputWrap select {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #18243c;
+  font: inherit;
+  font-size: 13px;
+}
+
 .inputWrap input::placeholder {
   color: #a0aabc;
+}
+
+.simpleInput {
+  width: 100%;
+  height: 46px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  outline-color: #8ba8f8;
+  color: #18243c;
+  font: inherit;
+  font-size: 13px;
 }
 
 .passwordToggle {
@@ -229,6 +254,26 @@
 .submitButton:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 21px rgb(57 78 215 / 25%);
+}
+
+.submitButton:disabled {
+  opacity: .7;
+  cursor: wait;
+  transform: none;
+}
+
+.formError {
+  margin: 0;
+  color: #b42318;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.formSuccess {
+  margin: 0;
+  color: #287043;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .divider {
