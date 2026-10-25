@@ -80,6 +80,13 @@ function readDemoSaves() {
   }
 }
 
+function apiErrorMessage(reason: unknown, fallback: string) {
+  if (reason instanceof TypeError && /fetch|network/i.test(reason.message)) {
+    return "Cannot connect to the OmniHub API. Start the backend and MongoDB, then check NEXT_PUBLIC_API_URL in frontend/.env.local.";
+  }
+  return reason instanceof Error ? reason.message : fallback;
+}
+
 function Shell({ children }: { children: ReactNode }) {
   return <div className={styles.shell}>
     <header className={styles.header}>
@@ -155,14 +162,14 @@ export function JobsHome() {
     for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
     void apiRequest<ListingResponse>(`/jobs?${params.toString()}`)
       .then((result) => { if (active) { setLiveJobs(result.jobs); setLoadedApiPage(1); setLiveTotal(result.pagination?.total ?? result.jobs.length); setApiError(""); } })
-      .catch((reason: unknown) => { if (active) { setLiveJobs([]); setLoadedApiPage(1); setLiveTotal(0); setApiError(reason instanceof Error ? reason.message : "Live listings are temporarily unavailable."); } })
+      .catch((reason: unknown) => { if (active) { setLiveJobs([]); setLoadedApiPage(1); setLiveTotal(0); setApiError(apiErrorMessage(reason, "Live listings are temporarily unavailable.")); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [filters]);
   useEffect(() => {
     void apiRequest<{ projects: FreelanceProject[] }>("/jobs/freelance?limit=6")
       .then((result) => setFreelanceProjects(result.projects))
-      .catch((reason: unknown) => setFreelanceError(reason instanceof Error ? reason.message : "Freelance projects are temporarily unavailable."));
+      .catch((reason: unknown) => setFreelanceError(apiErrorMessage(reason, "Freelance projects are temporarily unavailable.")));
   }, []);
 
   const filteredDemo = useMemo(() => demoJobs.filter((job) => {
@@ -217,7 +224,7 @@ export function JobsHome() {
       setLoadedApiPage((current) => current + 1);
       setLiveTotal(result.pagination?.total ?? liveTotal);
     } catch (reason) {
-      setApiError(reason instanceof Error ? reason.message : "More live listings could not be loaded.");
+      setApiError(apiErrorMessage(reason, "More live listings could not be loaded."));
     } finally { setLoadingMore(false); }
   }
 
@@ -309,7 +316,7 @@ export function JobDetails({ id }: { id: string }) {
     let active = true;
     void apiRequest<{ job: Job }>(`/jobs/${id}`)
       .then((result) => { if (active) setJob(result.job); })
-      .catch((reason: unknown) => { if (active) setError(reason instanceof Error ? reason.message : "Job details could not be loaded."); })
+      .catch((reason: unknown) => { if (active) setError(apiErrorMessage(reason, "Job details could not be loaded.")); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [id, demo]);
@@ -377,7 +384,7 @@ export function FreelanceDetails({ id }: { id: string }) {
     let active = true;
     void apiRequest<{ project: FreelanceProject }>(`/jobs/freelance/${id}`)
       .then((result) => { if (active) setProject(result.project); })
-      .catch((reason: unknown) => { if (active) setError(reason instanceof Error ? reason.message : "Project could not be loaded."); })
+      .catch((reason: unknown) => { if (active) setError(apiErrorMessage(reason, "Project could not be loaded.")); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [id]);
@@ -430,7 +437,7 @@ export function SeekerDashboard() {
         ...savedResult.savedJobs,
         ...demoJobs.filter((job) => demoSavedIds.includes(idFor(job))).map((job) => ({ _id: idFor(job), job })),
       ]);
-    } catch (reason) { setError(reason instanceof Error ? reason.message : "Sign in to access your job dashboard."); }
+    } catch (reason) { setError(apiErrorMessage(reason, "Sign in to access your job dashboard.")); }
     finally { setLoading(false); }
   }, []);
   useEffect(() => { void reload(); }, [reload]);
@@ -524,7 +531,7 @@ export function EmployerDashboard() {
       }));
       setProposals(Object.fromEntries(proposalRows));
       setError("");
-    } catch (reason) { setError(reason instanceof Error ? reason.message : "Sign in with an approved employer account to manage listings."); }
+    } catch (reason) { setError(apiErrorMessage(reason, "Sign in with an approved employer account to manage listings.")); }
   }, []);
   useEffect(() => { void reload(); }, [reload]);
   async function saveCompany(event: FormEvent<HTMLFormElement>) {
@@ -627,7 +634,7 @@ export function JobsAdminDashboard() {
         apiRequest<{ stats: typeof stats }>("/jobs/admin/overview"),
       ]);
       setPending(jobsResult.jobs); setPendingProjects(projectResult.projects); setCompanies(companyResult.companies); setStats(overview.stats); setError("");
-    } catch (reason) { setError(reason instanceof Error ? reason.message : "Only administrators can moderate jobs."); }
+    } catch (reason) { setError(apiErrorMessage(reason, "Only administrators can moderate jobs.")); }
   }, []);
   useEffect(() => { void reload(); }, [reload]);
   async function moderate(id: string, status: string) {
