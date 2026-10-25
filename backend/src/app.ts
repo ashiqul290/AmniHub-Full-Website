@@ -15,6 +15,7 @@ import sellerRouter from "./modules/ecommerce/routes/sellers.js";
 import uploadRouter from "./modules/ecommerce/routes/uploads.js";
 import newsletterRouter from "./modules/ecommerce/routes/newsletter.js";
 import addressRouter from "./modules/ecommerce/routes/addresses.js";
+import jobsRouter from "./modules/jobs/routes.js";
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use("/api/sellers", sellerRouter);
 app.use("/api/uploads", uploadRouter);
 app.use("/api/newsletter", newsletterRouter);
 app.use("/api/addresses", addressRouter);
+app.use("/api/jobs", jobsRouter);
 
 app.use((_request, response) => {
   response.status(404).json({ message: "Route not found." });

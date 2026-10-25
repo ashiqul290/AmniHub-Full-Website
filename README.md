@@ -103,6 +103,68 @@ subcategories, brands, carts, wishlists, orders, payments, reviews, coupons,
 seller stores, banners, addresses, notifications, newsletter subscribers, and
 website settings.
 
+## Jobs & Careers module
+
+The Jobs module is separate from the existing storefront and is available at:
+
+- Public listings and filters: `/jobs`
+- Job details: `/jobs/:id`
+- Job seeker profile, saved jobs, applications, interviews, and proposals:
+  `/jobs/dashboard`
+- Employer company, job, project, and applicant workspace: `/jobs/employer`
+- Job and company moderation: `/jobs/admin`
+
+The 20 sample roles in `frontend/src/data/defaultJobs.js` are frontend-only
+records with `demo-job-` IDs. They support local search and filters, are never
+sent to MongoDB, and cannot be edited through the job APIs. Live jobs and
+freelance projects use Mongoose and are loaded through the API.
+
+Jobs reuse OmniHub's HTTP-only JWT session and role model: customer accounts
+can maintain a job-seeker profile and apply; approved seller accounts can
+manage their company and listings; and admin accounts moderate companies,
+jobs, and freelance projects. Seller approval remains controlled by the
+existing OmniHub admin workflow. Employer-created listings and projects start
+as pending and are only shown publicly after an administrator approves them.
+The Jobs API does not add a new authentication mechanism or seed demo records.
+
+Jobs API endpoints (all under `/api`):
+
+- `GET /jobs` — published jobs with keyword, category, work mode, type,
+  experience, location, salary, company, date, sort, and pagination filters
+- `GET /jobs/categories` and `GET /jobs/:id` — categories and published job
+  details
+- `POST /jobs/company`, `GET /jobs/company/mine` — employer company profile
+- `POST /jobs`, `GET /jobs/mine`, `PATCH /jobs/:id`, `PATCH /jobs/:id/close`,
+  `DELETE /jobs/:id` — employer-owned job listings
+- `POST /jobs/:id/apply`, `GET /jobs/applications/mine`,
+  `DELETE /jobs/applications/:applicationId` — applications and withdrawal
+- `PUT /jobs/:id/save`, `DELETE /jobs/:id/save`, `GET /jobs/saved` — saved jobs
+- `GET /jobs/profile`, `PUT /jobs/profile` — job-seeker profile
+- `GET /jobs/:id/applications`, `PATCH /jobs/applications/:applicationId/status`,
+  `POST /jobs/interviews`, `GET /jobs/interviews/mine` — employer applicant
+  review and interview scheduling
+- `GET /jobs/freelance`, `GET /jobs/freelance/:id`,
+  `POST /jobs/freelance`, `POST /jobs/freelance/:id/proposals`,
+  `GET /jobs/proposals/mine` — distinct freelance-project listings and
+  proposals
+- `/jobs/admin/*` — listing moderation, company verification, and overview
+
+## Jobs module integration boundaries
+
+The current Jobs module provides the public search/detail experience, frontend
+sample records, Mongo-backed job and freelance-project listing, employer
+ownership checks, application status tracking, saved jobs, profile links,
+interview records, proposals, and basic administration. It currently reuses
+the existing customer/seller/admin roles rather than defining separate
+employer and recruiter account roles.
+
+Resume management currently stores a validated HTTPS URL on the seeker profile
+and application; a private resume-file upload and authorized download service
+has not been added. Job alerts and notification delivery, employer/recruiter
+seat assignments, subscription plans, advanced analytics, dispute/report
+moderation, and freelancer/client messaging are not implemented. Do not treat
+this initial module as providing those services.
+
 ## API overview
 
 - `/api/auth` — register, login, current session, logout
