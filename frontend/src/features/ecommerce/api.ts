@@ -1,15 +1,21 @@
 export type Product = {
   _id: string;
+  source: "demo" | "database";
   name: string;
   description: string;
   category: string;
   brand: string;
+  size?: string;
   price: number;
   compareAtPrice?: number;
+  discountPercentage?: number;
   stock: number;
+  stockDisplay?: string;
   images: string[];
+  imageUrl?: string;
   rating: number;
   reviewCount: number;
+  featured?: boolean;
 };
 
 export type CartLine = {
@@ -45,6 +51,23 @@ export type Review = {
 };
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+const imagePlaceholder = "/images/product-placeholder.svg";
+
+export function normalizeDatabaseProduct(
+  product: Partial<Product> & Pick<Product, "_id" | "name" | "description" | "category" | "brand" | "price" | "stock">,
+): Product {
+  return {
+    ...product,
+    source: "database",
+    images: product.images ?? [],
+    rating: product.rating ?? 0,
+    reviewCount: product.reviewCount ?? 0,
+  };
+}
+
+export function isDatabaseProduct(product: Product): boolean {
+  return product.source === "database" && !product._id.startsWith("demo-");
+}
 
 export async function uploadImage(file: File, scope: "product" | "store") {
   if (!file.type.startsWith("image/") || file.size > 8 * 1024 * 1024) {
@@ -100,9 +123,9 @@ export async function apiRequest<T>(
 }
 
 export function imageUrl(product: Product) {
-  return product.images?.[0] || "";
+  return product.imageUrl || product.images?.[0] || imagePlaceholder;
 }
 
 export function formatPrice(amount: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
+  return `${new Intl.NumberFormat("en-BD", { maximumFractionDigits: 0 }).format(amount)} ৳`;
 }

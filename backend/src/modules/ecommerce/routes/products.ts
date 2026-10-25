@@ -97,6 +97,28 @@ router.get("/mine", requireAuth, requireRole("seller"), async (_request, respons
   }
 });
 
+router.get(
+  "/admin",
+  requireAuth,
+  requireRole("admin"),
+  async (request, response, next) => {
+    try {
+      const page = Math.max(1, Number.parseInt(String(request.query.page || "1"), 10) || 1);
+      const limit = Math.min(100, Math.max(1, Number.parseInt(String(request.query.limit || "50"), 10) || 50));
+      const [products, total] = await Promise.all([
+        Product.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+        Product.countDocuments(),
+      ]);
+      response.json({
+        products: products.map((product) => ({ ...product, source: "database" as const })),
+        pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
 router.post("/", requireAuth, requireRole("seller", "admin"), async (request, response, next) => {
   try {
     if (!validProductInput(request.body ?? {})) {

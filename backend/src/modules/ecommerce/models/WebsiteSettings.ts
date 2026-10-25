@@ -8,6 +8,7 @@ const websiteSettingsSchema = new Schema(
     contactPhone: { type: String, default: "", maxlength: 32 },
     socialLinks: { type: Map, of: String, default: {} },
     shippingFee: { type: Number, default: 8, min: 0 },
+    freeShippingThreshold: { type: Number, default: 1500, min: 0 },
     taxRate: { type: Number, default: 0, min: 0, max: 1 },
   },
   { timestamps: true },

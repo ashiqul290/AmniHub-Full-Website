@@ -6,6 +6,7 @@ import Product from "../models/Product.js";
 import Coupon from "../models/Coupon.js";
 import Payment from "../models/Payment.js";
 import { getActiveSellerIds } from "../services/sellers.js";
+import WebsiteSettings from "../models/WebsiteSettings.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 
 const router = Router();
@@ -115,16 +116,18 @@ router.post("/", async (request, response, next) => {
         }
       }
       subtotal = Math.round(subtotal * 100) / 100;
-      const configuredShipping = Number(process.env.SHIPPING_FEE);
+      const settings = await WebsiteSettings.findOne({ key: "main" }).session(session);
+      const configuredShipping = settings?.shippingFee ?? Number(process.env.SHIPPING_FEE);
       const shippingFee =
         Number.isFinite(configuredShipping) && configuredShipping >= 0
           ? configuredShipping
           : 8;
-      const configuredFreeShipping = Number(process.env.FREE_SHIPPING_THRESHOLD);
+      const configuredFreeShipping =
+        settings?.freeShippingThreshold ?? Number(process.env.FREE_SHIPPING_THRESHOLD);
       const freeShippingThreshold =
         Number.isFinite(configuredFreeShipping) && configuredFreeShipping >= 0
           ? configuredFreeShipping
-          : 75;
+          : 1500;
       const shipping = subtotal >= freeShippingThreshold ? 0 : shippingFee;
       [createdOrder] = await Order.create(
         [
