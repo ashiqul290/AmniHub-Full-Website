@@ -112,20 +112,20 @@ function ProductCard({ product, onAdd, onWishlist }: { product: Product; onAdd: 
     : null;
   return (
     <article className={styles.productCard}>
-      <div className={styles.productImage} style={{ backgroundImage: imageUrl(product) ? `url("${imageUrl(product)}")` : undefined }}>
+      <div className={styles.productImage}>
         <Link href={`/ecommerce/product/${product._id}`} className={styles.productImageLink} aria-label={`View ${product.name}`}>
           <img src={imageUrl(product)} alt={product.name} loading="lazy" onError={(event) => { event.currentTarget.src = "/images/product-placeholder.svg"; }} />
         </Link>
         {discount && <span className={styles.discount}>-{discount}%</span>}
-        {product.source === "demo" && <span className={styles.sampleBadge}>DEMO</span>}
         <button className={styles.heart} onClick={() => onWishlist(product)} aria-label={`Save ${product.name}`}><Heart size={17} /></button>
       </div>
       <div className={styles.productCopy}>
         <span className={styles.brand}>{product.brand || product.category}{product.size ? ` · ${product.size}` : ""}</span>
         <Link href={`/ecommerce/product/${product._id}`} className={styles.productName}>{product.name}</Link>
         <div className={styles.stockLabel}>{product.stockDisplay || (product.stock > 0 ? "In stock" : "Out of stock")}</div>
-        <div className={styles.productBottom}><div><strong>{formatPrice(product.price)}</strong>{product.compareAtPrice && <del>{formatPrice(product.compareAtPrice)}</del>}</div>
-          <button onClick={() => onAdd(product)} className={styles.addButton} aria-label={`Add ${product.name} to cart`}><ShoppingCart size={17} /></button>
+        <div className={styles.productBottom}>
+          <div><strong>{formatPrice(product.price)}</strong>{product.compareAtPrice && <del>{formatPrice(product.compareAtPrice)}</del>}</div>
+          <button onClick={() => onAdd(product)} className={styles.addButton} aria-label={`Add ${product.name} to cart`}><ShoppingCart size={15} /> Add to Cart</button>
         </div>
       </div>
     </article>
@@ -658,10 +658,9 @@ export function Marketplace({ mode = "shop" }: { mode?: Mode }) {
 
   let content: React.ReactNode;
   if (mode === "shop") {
-    const demoFeatured = demoCatalog.filter((product) => product.featured).slice(0, 8);
-    const featured = [...demoFeatured, ...databaseProducts.filter((product) => product.featured)].slice(0, 8);
-    const diaperProducts = catalogProducts.filter((product) => product.category === "Diapers");
-    const babyFoodProducts = catalogProducts.filter((product) => product.category === "Baby Food");
+    const featured = demoCatalog.filter((product) => product.featured).slice(0, 8);
+    const diaperProducts = demoCatalog.filter((product) => product.category === "Diapers").slice(0, 12);
+    const babyFoodProducts = demoCatalog.filter((product) => product.category === "Baby Food").slice(0, 8);
     const brandNames = [...new Set(catalogProducts.map((product) => product.brand).filter(Boolean))].slice(0, 12);
     const categoryImage = (name: string) => catalogProducts.find((product) => product.category === name)?.imageUrl || imageUrl(catalogProducts[0]);
     const selectCategory = (name: string) => {
