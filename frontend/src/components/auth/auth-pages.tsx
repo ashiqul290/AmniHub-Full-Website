@@ -276,7 +276,7 @@ export function RegistrationPageContent() {
       <div className={styles.formHeading}>
         <span className={styles.welcomeMark}><Sparkles size={17} /></span>
         <h1>Create Your Account</h1>
-        <p>Join OmniHub and explore endless possibilities.</p>
+        <p>Join OmniHub and explore endless possibilities</p>
       </div>
       <form className={`${styles.form} ${styles.registerForm}`} onSubmit={submitRegistration}>
         <div className={styles.field}>
