@@ -132,7 +132,7 @@ export function AccountDashboard() {
       });
       setAddresses((current) => current.map((item) => ({ ...item, isDefault: item._id === address._id })));
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Default address could not be updated.");
+      setError(reason instanceof Error ? reason.message : "Default address could not be updated");
     }
   }
 
