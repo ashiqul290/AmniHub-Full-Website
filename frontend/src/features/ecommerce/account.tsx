@@ -106,7 +106,7 @@ export function AccountDashboard() {
       setDraft(emptyAddress);
       setNotice("Delivery address saved.");
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Address could not be saved.");
+      setError(reason instanceof Error ? reason.message : "Address could not be saved");
     } finally {
       setBusy(false);
     }
@@ -119,7 +119,7 @@ export function AccountDashboard() {
       await apiRequest(`/addresses/${address._id}`, { method: "DELETE" });
       setAddresses((current) => current.filter((item) => item._id !== address._id));
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Address could not be removed.");
+      setError(reason instanceof Error ? reason.message : "Address could not be removed");
     }
   }
 
