@@ -81,9 +81,9 @@ export function AccountDashboard() {
         body: JSON.stringify({ name, phone }),
       });
       setUser(result.user);
-      setNotice("Your profile has been updated.");
+      setNotice("Your profile has been updated");
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Profile update failed.");
+      setError(reason instanceof Error ? reason.message : "Profile update failed");
     } finally {
       setBusy(false);
     }
