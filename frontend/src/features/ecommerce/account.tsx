@@ -163,8 +163,8 @@ export function AccountDashboard() {
         {addresses.length ? addresses.map((address) => <article key={address._id} className={styles.addressCard}>
           <div><strong>{address.name}</strong>{address.isDefault && <span className={styles.orderStatus}>Default</span>}<p>{address.line1}{address.line2 && `, ${address.line2}`}<br />{address.city}, {address.postalCode}, {address.country}<br />{address.phone}</p></div>
           <div className={styles.actions}>{!address.isDefault && <button onClick={() => void makeDefault(address)}>Make default</button>}<button onClick={() => void deleteAddress(address)} aria-label="Delete address"><Trash2 size={14} /></button></div>
-        </article>) : <p className={styles.muted}>You haven&apos;t saved a delivery address yet.</p>}
+        </article>) : <p className={styles.muted}>You haven&apos;t saved a delivery address yet</p>}
       </section>
-    </> : <div className={styles.empty}><UserRound size={32} /><h2>Sign in to manage your account.</h2><Link href="/login" className={styles.primaryButton}>Sign in <ArrowRight size={16} /></Link></div>}
+    </> : <div className={styles.empty}><UserRound size={32} /><h2>Sign in to manage your account</h2><Link href="/login" className={styles.primaryButton}>Sign in <ArrowRight size={16} /></Link></div>}
   </main></Shell>;
 }
