@@ -134,7 +134,7 @@ export function ProductDetail() {
         <div className={styles.perks}><div><Truck size={17} /><span><b>Complimentary shipping</b><small>On orders over $75</small></span></div><div><ShieldCheck size={17} /><span><b>Thoughtful quality</b><small>Made to be loved for longer</small></span></div></div>
         <div className={styles.descriptionBlock}><h2>About this piece</h2><p>{product.description}</p><p>Carefully selected for quality, function, and timeless everyday use.</p></div>
       </div>
-    </section> : error ? <div className={styles.empty}><h2>We couldn't load this product.</h2><button className={styles.secondaryButton} onClick={() => window.location.reload()}>Try again</button></div> : <div className={styles.empty}><h2>We couldn't find this product.</h2><Link href="/ecommerce" className={styles.primaryButton}><ArrowLeft size={15} /> Back to the shop</Link></div>}
+    </section> : error ? <div className={styles.empty}><h2>We couldn't load this product</h2><button className={styles.secondaryButton} onClick={() => window.location.reload()}>Try again</button></div> : <div className={styles.empty}><h2>We couldn't find this product.</h2><Link href="/ecommerce" className={styles.primaryButton}><ArrowLeft size={15} /> Back to the shop</Link></div>}
     {product && <section className={styles.reviews}>
       <div className={styles.reviewHeading}><span className={styles.eyebrow}>CUSTOMER NOTES</span><h2>Reviews {reviews.length > 0 && <span>({reviews.length})</span>}</h2><p>Only customers with a delivered order can leave a review.</p></div>
       <form className={styles.reviewForm} onSubmit={submitReview}>
