@@ -724,7 +724,7 @@ export function Marketplace({ mode = "shop" }: { mode?: Mode }) {
         </div>
         {error && databaseProducts.length === 0 && <p className={styles.apiNotice}>Showing the local demo collection. Live products are temporarily unavailable.</p>}
         {notice && <div className={styles.success}>{notice}</div>}
-        {loading && databaseProducts.length === 0 && <p className={styles.catalogStatus}>Loading live products… Demo products are already available below.</p>}
+        {loading && databaseProducts.length === 0 && <p className={styles.catalogStatus}>Loading live products… Demo products are already available below</p>}
         {visibleProducts.length ? <div className={styles.productGrid}>{visibleProducts.map((product) => <ProductCard key={product._id} product={product} onAdd={addToCart} onWishlist={saveProduct} />)}</div> : <div className={styles.empty}><ShoppingBag size={30} /><h3>No products match those filters.</h3><button className={styles.secondaryButton} onClick={showAllDeals}>Clear filters</button></div>}
         <div className={styles.pagination}><button disabled={page <= 1} onClick={() => setPage((value) => value - 1)}>Previous</button><span>Page {page} of {pages}</span><button disabled={page >= pages} onClick={() => setPage((value) => value + 1)}>Next</button></div>
       </section>

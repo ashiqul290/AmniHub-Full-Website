@@ -103,7 +103,7 @@ export function ProductDetail() {
       setReviewComment("");
       setReviewNotice("Your review has been published.");
     } catch (reason) {
-      setReviewError(reason instanceof Error ? reason.message : "We could not post your review.");
+      setReviewError(reason instanceof Error ? reason.message : "We could not post your review");
     } finally {
       setReviewBusy(false);
     }
