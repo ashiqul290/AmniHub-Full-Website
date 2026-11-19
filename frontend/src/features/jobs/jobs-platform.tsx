@@ -233,7 +233,7 @@ export function JobsHome() {
       <section className={styles.hero}>
         <div className={styles.heroInner}>
           <span className={styles.eyebrow}>YOUR NEXT CHAPTER STARTS HERE</span>
-          <h1>Find your <span>dream job.</span></h1>
+          <h1>Find your <span>dream job</span></h1>
           <p>Discover meaningful opportunities from teams that are ready to grow with you.</p>
           <form className={styles.searchBar} onSubmit={(event) => { event.preventDefault(); setPage(1); }}>
             <label><Search size={18} /><input value={filters.q} onChange={(event) => updateFilter("q", event.target.value)} placeholder="Job title, skills, or company" aria-label="Search job title, skills, or company" /></label>

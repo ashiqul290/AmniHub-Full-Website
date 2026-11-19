@@ -722,7 +722,7 @@ export function Marketplace({ mode = "shop" }: { mode?: Mode }) {
           <label className={styles.filterLabel}>Min price<input aria-label="Minimum price" type="number" min="0" placeholder="৳ Min" value={minPrice} onChange={(event) => { setMinPrice(event.target.value); setPage(1); }} /></label>
           <label className={styles.filterLabel}>Max price<input aria-label="Maximum price" type="number" min="0" placeholder="৳ Max" value={maxPrice} onChange={(event) => { setMaxPrice(event.target.value); setPage(1); }} /></label>
         </div>
-        {error && databaseProducts.length === 0 && <p className={styles.apiNotice}>Showing the local demo collection. Live products are temporarily unavailable.</p>}
+        {error && databaseProducts.length === 0 && <p className={styles.apiNotice}>Showing the local demo collection. Live products are temporarily unavailable</p>}
         {notice && <div className={styles.success}>{notice}</div>}
         {loading && databaseProducts.length === 0 && <p className={styles.catalogStatus}>Loading live products… Demo products are already available below</p>}
         {visibleProducts.length ? <div className={styles.productGrid}>{visibleProducts.map((product) => <ProductCard key={product._id} product={product} onAdd={addToCart} onWishlist={saveProduct} />)}</div> : <div className={styles.empty}><ShoppingBag size={30} /><h3>No products match those filters.</h3><button className={styles.secondaryButton} onClick={showAllDeals}>Clear filters</button></div>}
